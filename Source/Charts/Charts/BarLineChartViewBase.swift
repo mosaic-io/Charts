@@ -94,7 +94,7 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
     #if !os(tvOS)
     internal var _pinchGestureRecognizer: NSUIPinchGestureRecognizer!
     #endif
-    internal var _panGestureRecognizer: NSUIPanGestureRecognizer!
+    internal var _panGestureRecognizer: NSUILongPressGestureRecognizer!
     
     /// flag that indicates if a custom viewport offset has been set
     private var _customViewPortEnabled = false
@@ -126,7 +126,7 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
         _tapGestureRecognizer = NSUITapGestureRecognizer(target: self, action: #selector(tapGestureRecognized(_:)))
         _doubleTapGestureRecognizer = NSUITapGestureRecognizer(target: self, action: #selector(doubleTapGestureRecognized(_:)))
         _doubleTapGestureRecognizer.nsuiNumberOfTapsRequired = 2
-        _panGestureRecognizer = NSUIPanGestureRecognizer(target: self, action: #selector(panGestureRecognized(_:)))
+        _panGestureRecognizer = NSUILongPressGestureRecognizer(target: self, action: #selector(panGestureRecognized(_:)))
         
         _panGestureRecognizer.delegate = self
         
@@ -681,7 +681,7 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
     }
     #endif
     
-    @objc private func panGestureRecognized(_ recognizer: NSUIPanGestureRecognizer)
+    @objc private func panGestureRecognized(_ recognizer: NSUILongPressGestureRecognizer)
     {
         if recognizer.state == NSUIGestureRecognizerState.began && recognizer.nsuiNumberOfTouches() > 0
         {
@@ -701,7 +701,7 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
                 
                 _closestDataSetToTouch = getDataSetByTouchPoint(point: recognizer.nsuiLocationOfTouch(0, inView: self))
                 
-                var translation = recognizer.translation(in: self)
+                var translation = recognizer.location(in: self)
                 if !self.dragXEnabled
                 {
                     translation.x = 0.0
@@ -732,7 +732,7 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
                     }
                 }
                 
-                _lastPanPoint = recognizer.translation(in: self)
+                _lastPanPoint = recognizer.location(in: self)
             }
             else if self.isHighlightPerDragEnabled
             {
@@ -745,7 +745,7 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
         {
             if _isDragging
             {
-                let originalTranslation = recognizer.translation(in: self)
+                let originalTranslation = recognizer.location(in: self)
                 var translation = CGPoint(x: originalTranslation.x - _lastPanPoint.x, y: originalTranslation.y - _lastPanPoint.y)
                 
                 if !self.dragXEnabled
@@ -783,7 +783,7 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
                     stopDeceleration()
                     
                     _decelerationLastTime = CACurrentMediaTime()
-                    _decelerationVelocity = recognizer.velocity(in: self)
+//                    _decelerationVelocity = recognizer.velocity(in: self)
                     
                     _decelerationDisplayLink = NSUIDisplayLink(target: self, selector: #selector(BarLineChartViewBase.decelerationLoop))
                     _decelerationDisplayLink.add(to: RunLoop.main, forMode: RunLoop.Mode.common)
@@ -887,11 +887,11 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
     {
         if gestureRecognizer == _panGestureRecognizer
         {
-            let velocity = _panGestureRecognizer.velocity(in: self)
+//            let velocity = _panGestureRecognizer.velocity(in: self)
             if _data === nil || !isDragEnabled ||
-                (self.hasNoDragOffset && self.isFullyZoomedOut && !self.isHighlightPerDragEnabled) ||
-                (!_dragYEnabled && abs(velocity.y) > abs(velocity.x)) ||
-                (!_dragXEnabled && abs(velocity.y) < abs(velocity.x))
+                (self.hasNoDragOffset && self.isFullyZoomedOut && !self.isHighlightPerDragEnabled)
+//                (!_dragYEnabled && abs(velocity.y) > abs(velocity.x)) ||
+//                (!_dragXEnabled && abs(velocity.y) < abs(velocity.x))
             {
                 return false
             }
@@ -934,15 +934,15 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
     open func gestureRecognizer(_ gestureRecognizer: NSUIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: NSUIGestureRecognizer) -> Bool
     {
         #if !os(tvOS)
-        if ((gestureRecognizer is NSUIPinchGestureRecognizer && otherGestureRecognizer is NSUIPanGestureRecognizer) ||
-            (gestureRecognizer is NSUIPanGestureRecognizer && otherGestureRecognizer is NSUIPinchGestureRecognizer))
+        if ((gestureRecognizer is NSUIPinchGestureRecognizer && otherGestureRecognizer is NSUILongPressGestureRecognizer) ||
+            (gestureRecognizer is NSUILongPressGestureRecognizer && otherGestureRecognizer is NSUIPinchGestureRecognizer))
         {
             return true
         }
         #endif
         
-        if gestureRecognizer is NSUIPanGestureRecognizer,
-            otherGestureRecognizer is NSUIPanGestureRecognizer,
+        if gestureRecognizer is NSUILongPressGestureRecognizer,
+            otherGestureRecognizer is NSUILongPressGestureRecognizer,
             gestureRecognizer == _panGestureRecognizer
         {
             var scrollView = self.superview
@@ -967,7 +967,7 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
             }
             
             let scrollViewPanGestureRecognizer = foundScrollView?.nsuiGestureRecognizers?.first {
-                $0 is NSUIPanGestureRecognizer
+                $0 is NSUILongPressGestureRecognizer
             }
             
             if otherGestureRecognizer === scrollViewPanGestureRecognizer

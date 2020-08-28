@@ -17,7 +17,7 @@ public typealias NSUIGestureRecognizer = UIGestureRecognizer
 public typealias NSUIGestureRecognizerState = UIGestureRecognizer.State
 public typealias NSUIGestureRecognizerDelegate = UIGestureRecognizerDelegate
 public typealias NSUITapGestureRecognizer = UITapGestureRecognizer
-public typealias NSUIPanGestureRecognizer = UIPanGestureRecognizer
+public typealias NSUILongPressGestureRecognizer = UILongPressGestureRecognizer
 
 extension NSUITapGestureRecognizer
 {
@@ -39,7 +39,7 @@ extension NSUITapGestureRecognizer
     }
 }
 
-extension NSUIPanGestureRecognizer
+extension NSUILongPressGestureRecognizer
 {
     @objc final func nsuiNumberOfTouches() -> Int
     {
@@ -95,7 +95,7 @@ public typealias NSUIGestureRecognizer = NSGestureRecognizer
 public typealias NSUIGestureRecognizerState = NSGestureRecognizer.State
 public typealias NSUIGestureRecognizerDelegate = NSGestureRecognizerDelegate
 public typealias NSUITapGestureRecognizer = NSClickGestureRecognizer
-public typealias NSUIPanGestureRecognizer = NSPanGestureRecognizer
+public typealias NSUILongPressGestureRecognizer = NSPanGestureRecognizer
 public typealias NSUIPinchGestureRecognizer = NSMagnificationGestureRecognizer
 public typealias NSUIRotationGestureRecognizer = NSRotationGestureRecognizer
 
@@ -120,7 +120,7 @@ extension NSUITapGestureRecognizer
     }
 }
 
-extension NSUIPanGestureRecognizer
+extension NSUILongPressGestureRecognizer
 {
     final func nsuiNumberOfTouches() -> Int
     {
