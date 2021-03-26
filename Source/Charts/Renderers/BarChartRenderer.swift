@@ -432,18 +432,9 @@ open class BarChartRenderer: BarLineScatterCandleBubbleRenderer
             }
             
             let yValue = (dataSet.entryForIndex(j)?.y ?? 0)
+            let roundCorners = corners(value: yValue)
             
-            let corners: UIRectCorner
-            switch yValue {
-            case 0:
-                corners = []
-            case ...0:
-                corners = [.bottomLeft, .bottomRight]
-            default:
-                corners = [.topLeft, .topRight]
-            }
-            
-            let bezierPath = UIBezierPath(roundedRect: barRect, byRoundingCorners: corners, cornerRadii: CGSize(width: dataSet.barCornerRadius, height: dataSet.barCornerRadius))
+            let bezierPath = UIBezierPath(roundedRect: barRect, byRoundingCorners: roundCorners, cornerRadii: CGSize(width: dataSet.barCornerRadius, height: dataSet.barCornerRadius))
             context.addPath(bezierPath.cgPath)
             context.drawPath(using: .fill)
             
@@ -825,7 +816,8 @@ open class BarChartRenderer: BarLineScatterCandleBubbleRenderer
                 
                 setHighlightDrawPos(highlight: high, barRect: barRect)
          
-                let bezierPath = UIBezierPath(roundedRect: barRect, byRoundingCorners: [.topLeft, .topRight], cornerRadii: CGSize(width: 4, height: 4))
+                let roundCorners = corners(value: e.y)
+                let bezierPath = UIBezierPath(roundedRect: barRect, byRoundingCorners: roundCorners, cornerRadii: CGSize(width: set.barCornerRadius, height: set.barCornerRadius))
                 context.addPath(bezierPath.cgPath)
                 context.drawPath(using: .fill)
             }
@@ -916,5 +908,16 @@ open class BarChartRenderer: BarLineScatterCandleBubbleRenderer
         modifier(element)
 
         return element
+    }
+    
+    func corners(value: Double) -> UIRectCorner {
+        switch value {
+        case 0:
+            return []
+        case ...0:
+            return [.bottomLeft, .bottomRight]
+        default:
+            return [.topLeft, .topRight]
+        }
     }
 }
